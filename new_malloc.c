@@ -27,8 +27,9 @@ struct block {
 };
 
 void myFree(void *);
-void    free_list_insert(Block *);
-
+void free_list_insert(Block *);
+void addFree(void *);
+void coalesce();
 
 
 /* Free List Global Variable */
@@ -95,14 +96,14 @@ Block * free_list_search(size_t size) {
     		int oldSize = smallest->size;
 
     		Block *split = ((char *) smallest + sizeof(Block)) + size; 
-
+    		
     		smallest->capacity = sizeof(Block) + size;
     		smallest->size = size;
 
     		
     		split->capacity = oldCapac - smallest->capacity;
     		split->size = split->capacity - sizeof(Block);
-    		myFree(split->data);
+    		addFree(split->data);
 
     		printf("Found block of size %zu at address %pu\n",smallest->size, smallest);
     		return smallest;
@@ -146,6 +147,16 @@ void *myMalloc(size_t size) {
     return block->data;
 }
 
+void addFree(void *ptr) {
+	 if (!ptr) {
+        return;
+    }
+
+    Block *block = BLOCK_FROM_POINTER(ptr);
+    free_list_insert(block);
+
+}
+
 void myFree(void *ptr) {
 	 if (!ptr) {
         return;
@@ -153,6 +164,25 @@ void myFree(void *ptr) {
 
     Block *block = BLOCK_FROM_POINTER(ptr);
     free_list_insert(block);
+    
+    coalesce();
+    
+
+}
+
+void coalesce() {
+	Block *curr = FreeList.next;
+   	Block *next = curr->next;
+   	if(next != &FreeList) {   		
+   		curr->next = next->next;
+   		curr->size = curr->size + next->size + sizeof(Block);
+    	curr->capacity = curr->capacity + next->capacity;
+    	
+    	block_detach(next);
+
+    	
+    }
+    
 }
 
 
@@ -170,8 +200,6 @@ int main() {
 	int *x = (int*) myMalloc(105);
 	*x = 11;	
 	
-	
-
 	myFree(a);myFree(z);myFree(x);
 
 	printFreeList();
