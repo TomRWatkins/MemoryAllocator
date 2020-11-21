@@ -190,7 +190,7 @@ void coalesce() {
 int main() {
 	int *p = (int*) myMalloc(105);
 	*p = 11;	
-	myFree(p);
+	
 	int *a = (int*) myMalloc(105);
 	*a = 11;	
 	
@@ -200,7 +200,7 @@ int main() {
 	int *x = (int*) myMalloc(105);
 	*x = 11;	
 	
-	myFree(a);myFree(z);myFree(x);
+	myFree(p);myFree(a);myFree(z);myFree(x);
 
 	printFreeList();
 }
