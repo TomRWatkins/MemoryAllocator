@@ -133,7 +133,8 @@ Block * free_list_search(size_t size) {
     else if (size <= 2048) binIndex = 6;
     else if (size <= 4096) binIndex = 7;
     else if (size <= 8192) binIndex = 8;        
-   
+    else binIndex = 8;
+
     size = pow(2, (binIndex+5));
     
     Block *smallest;
@@ -326,7 +327,7 @@ void *myMalloc(size_t size) {
     if (!block) {
         return NULL;
     }
-    printf("Address being returned is %p\n",block->data);
+    //printf("Address being returned is %p\n",block->data);
     return block->data;
 }
 
