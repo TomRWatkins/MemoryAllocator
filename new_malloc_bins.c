@@ -117,7 +117,7 @@ Block block_allocate() {
     block->size     = 8192;
     block->prev     = block;
     block->next     = block;
-    myFree(block->data);
+    addFree(block->data);
 }
 
 Block * free_list_search(size_t size) {
@@ -263,9 +263,9 @@ Block * free_list_search(size_t size) {
     return NULL;
 }
 
-void    free_list_insert(Block *block) {
+void    free_list_insert(Block *block) {	
     /* Append to head */
-    Block *head;
+   Block *head;
     switch(binIndex) {
         case 0: head = FreeList0.next; break;
         case 1: head = FreeList1.next; break;
@@ -347,6 +347,21 @@ void myFree(void *ptr) {
     }
 
     Block *block = BLOCK_FROM_POINTER(ptr);
+    int x = block->size;
+
+    
+    if (x <= 32) binIndex = 0; 
+    else if (x <= 64) binIndex = 1; 
+    else if (x <= 128) binIndex = 2; 
+    else if (x <= 256) binIndex = 3; 
+    else if (x <= 512) binIndex = 4; 
+    else if (x <= 1024) binIndex = 5;
+    else if (x <= 2048) binIndex = 6;
+    else if (x <= 4096) binIndex = 7;
+    else if (x <= 8192) binIndex = 8;        
+    else binIndex = 8;
+
+
     free_list_insert(block);
     
     coalesce();
