@@ -118,6 +118,7 @@ Block block_allocate() {
     block->prev     = block;
     block->next     = block;
     addFree(block->data);
+    coalesce();
 }
 
 Block * free_list_search(size_t size) {
