@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,9 +34,7 @@ void coalesce();
 
 /* Free List Global Variable */
 
-Block FreeList = {-1, -1, &FreeList, &FreeList}; //USE AN ARRAY OF THESE
-												 //Block FreeLists[10] // FreeList[i] = {-1, -1, &FreeList, &FreeList};
-
+Block FreeList = {-1, -1, &FreeList, &FreeList};
 
 void printFreeList() {
     for (Block *curr = FreeList.next; curr != &FreeList; curr = curr->next) {
@@ -87,7 +86,7 @@ Block * free_list_search(size_t size) {
     if(found) {
     	if((smallest->size - size <= (32 + sizeof(Block)))) {
     		//Send whole block
-    		printf("Found block of size (<32 Left) %zu at address %pu\n",smallest->size, smallest);    		
+    		printf("Found block of size (<32 Left) %zu at address %p\n",smallest->size, smallest);    		
     		return smallest;
     	}
     	else {
@@ -105,7 +104,7 @@ Block * free_list_search(size_t size) {
     		split->size = split->capacity - sizeof(Block);
     		addFree(split->data);
 
-    		printf("Found block of size %zu at address %pu\n",smallest->size, smallest);
+    		printf("Found block of size %zu at address %p\n",smallest->size, smallest);
     		return smallest;
     	}
     }
@@ -132,7 +131,7 @@ void *myMalloc(size_t size) {
     Block *block = free_list_search(size);
 
 
-    if (!block) {
+    while (!block) {
         block_allocate();    
    		block = free_list_search(size);
     }
