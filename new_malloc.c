@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,12 +33,13 @@ void coalesce();
 
 /* Free List Global Variable */
 
-Block FreeList = {-1, -1, &FreeList, &FreeList};
+Block FreeList = {-1, -1, &FreeList, &FreeList}; //USE AN ARRAY OF THESE
+												 //Block FreeLists[10] // FreeList[i] = {-1, -1, &FreeList, &FreeList};
 
 
 void printFreeList() {
     for (Block *curr = FreeList.next; curr != &FreeList; curr = curr->next) {
-    	printf("%d - ", curr->size);
+    	printf("%p - %d |  ",curr, curr->size);
  	}
 }
 
@@ -71,7 +71,7 @@ Block block_allocate() {
 }
 
 Block * free_list_search(size_t size) {
-    /* Perform first fit algorithm */    
+    /* Perform best fit algorithm */    
     int found = 0;
     Block *smallest = FreeList.next;
 
@@ -143,7 +143,7 @@ void *myMalloc(size_t size) {
     if (!block) {
         return NULL;
     }
-    printf("Address being returned is %pu\n",block->data);
+    printf("Address being returned is %p\n",block->data);
     return block->data;
 }
 
@@ -188,21 +188,45 @@ void coalesce() {
 
 
 int main() {
-	int *p = (int*) myMalloc(105);
-	*p = 11;	
-	
-	int *a = (int*) myMalloc(105);
-	*a = 11;	
-	
-	int *z = (int*) myMalloc(105);
-	*z = 11;	
-	
-	int *x = (int*) myMalloc(105);
-	*x = 11;	
-	
-	myFree(p);myFree(a);myFree(z);myFree(x);
+	char word[10];
+	char newWord[10] = "Filler";
 
-	printFreeList();
+	while(1) {
+		printf("Enter A/F: ");
+		scanf("%s", word);
+		if(word[0] == 'A'){     
+			printf("Enter amount of memory to allocate: ");
+			scanf("%s", word);			   
+      		int x = atoi(word);
+      		int *q = (int*)myMalloc(x);
+      		*q = 100;
+      		printf("Allocated - %p\n", q);
+		}
+		else{
+			printf("Enter address to free: ");
+			int *ptr;
+			scanf("%p", &ptr);
+      		
+      		myFree(ptr);
+    	}
+		printFreeList();
+	}
+
+	//int *p = (int*) myMalloc(100);
+	//*p = 11;	
+	
+	//int *a = (int*) myMalloc(105);
+	//*a = 11;	
+	
+	//int *z = (int*) myMalloc(105);
+	//*z = 11;	
+	
+	//int *x = (int*) myMalloc(105);
+	//*x = 11;	
+	
+	//myFree(p);myFree(a);myFree(z);myFree(x);
+
+	//printFreeList();
 }
 
 
