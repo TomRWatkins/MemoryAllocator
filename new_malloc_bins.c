@@ -32,20 +32,18 @@ void addFree(void *);
 void coalesce();
 
 
-/* Free List Global Variable */
+/* Free List Global Variables and binIndex */
 static int binIndex;
-//Block FreeList = {-1, -1, &FreeList, &FreeList}; 
-//USE AN ARRAY OF THESE
-//Block FreeLists[10] // FreeList[i] = {-1, -1, &FreeList, &FreeList};
-Block FreeList0 = {-1, -1, &FreeList0, &FreeList0};
-Block FreeList1 = {-1, -1, &FreeList1, &FreeList1};
-Block FreeList2 = {-1, -1, &FreeList2, &FreeList2};
-Block FreeList3 = {-1, -1, &FreeList3, &FreeList3};
-Block FreeList4 = {-1, -1, &FreeList4, &FreeList4};
-Block FreeList5 = {-1, -1, &FreeList5, &FreeList5};
-Block FreeList6 = {-1, -1, &FreeList6, &FreeList6};
-Block FreeList7 = {-1, -1, &FreeList7, &FreeList7};
-Block FreeList8 = {-1, -1, &FreeList8, &FreeList8};
+
+Block FreeList0 = {-1, -1, &FreeList0, &FreeList0}; //32
+Block FreeList1 = {-1, -1, &FreeList1, &FreeList1}; //64
+Block FreeList2 = {-1, -1, &FreeList2, &FreeList2}; //128
+Block FreeList3 = {-1, -1, &FreeList3, &FreeList3}; //256
+Block FreeList4 = {-1, -1, &FreeList4, &FreeList4}; //512
+Block FreeList5 = {-1, -1, &FreeList5, &FreeList5}; //1024
+Block FreeList6 = {-1, -1, &FreeList6, &FreeList6}; //2048
+Block FreeList7 = {-1, -1, &FreeList7, &FreeList7}; //4096
+Block FreeList8 = {-1, -1, &FreeList8, &FreeList8}; //8192
  
 
 void printFreeList() {
@@ -88,8 +86,7 @@ void printFreeList() {
                         printf("%p - %d |  ",curr, curr->size);
                     }
                     printf("\n"); break;               
-        }
-        
+        }        
     }
 }
 
@@ -240,7 +237,7 @@ Block * free_list_search(size_t size) {
     if(found) {    	   		
         if((smallest->size == size)) {
             //Send whole block
-            printf("Found block of size %zu at address %p\n",smallest->size, smallest);          
+            printf("Found block of size %zu at address",smallest->size);          
             return smallest;
         }
         //Split the block ASSIGN BLOCK TO ALLOCATE ON THE LEFT  
@@ -257,7 +254,7 @@ Block * free_list_search(size_t size) {
         split->size = split->capacity - sizeof(Block);
         addFree(split->data);
 
-        printf("Found block of size %zu at address %p\n",smallest->size, smallest);
+        printf("Found block of size %zu at address",smallest->size);
             
     	return smallest;    
     }
@@ -465,7 +462,7 @@ int main() {
       		int x = atoi(word);
       		int *q = (int*)myMalloc(x);
       		*q = 100;
-      		printf("Allocated - %p\n", q);
+      		printf(" %p\n", q);
 		}
 		else{
 			printf("Enter address to free: ");
