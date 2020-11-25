@@ -24,12 +24,12 @@ struct block {
     char     data[];    /* Label for user accessible block data */
 };
 
-void myFree(void *);
+/*Function Signatures*/
+void new_free(void *);
 void free_list_insert(Block *);
 void addFree(void *);
 void coalesce();
 void init();
-
 
 /* Free List Global Variables and binIndex */
 static int binIndex;
@@ -37,7 +37,7 @@ int initInt = 0;
 Block FreeLists[9]; //Array of doubly linked freelists
  
 
-//Function to print each Bins Free List and display the total memory. 
+/* Function to print each Bins Free List and display the total memory available in that bin. */
 void printFreeList() {
     for(int i = 0; i < 9; i++) {
     	int total = 0;
@@ -51,7 +51,7 @@ void printFreeList() {
     }
 }
 
-//Function to detatch a given block from its FreeList
+/* A Function to detatch a given block from its FreeList */
 Block * block_detach(Block *block) {
     /* Update prev and next blocks to reference each other */
     if (block) {
@@ -65,8 +65,8 @@ Block * block_detach(Block *block) {
     return block;
 }
 
-//Function called when there isn't sufficient memory in a given Bins FreeList, the function
-//calls sbrk() to allocate another 8K block to the front of the List.
+/* A Function called when there isn't sufficient memory in a given Bins FreeList, the function
+   calls sbrk() to allocate another 8K block to the front of the List and coalesces with the list. */
 Block block_allocate() {  
 	intptr_t allocated = sizeof(Block) + (8192);  
     Block *  block     = sbrk(allocated);
@@ -82,9 +82,9 @@ Block block_allocate() {
     coalesce();
 }
 
-//A Function to search a given Free List for the smallest block able to satisfy a request,
-//the block is then split and returned to the application, the remainder of the block is reallocated 
-//on the FreeList.
+/* A Function to search a given Free List for the smallest block able to satisfy a request,
+   the block is then split and returned to the application, the remainder of the block is reallocated 
+   on the FreeList. */
 Block * free_list_search(size_t size) {
     /* Perform best fit algorithm */    
     int found = 0;
@@ -120,7 +120,7 @@ Block * free_list_search(size_t size) {
             printf("Found block of size %zu at address", smallest->size);          
             return smallest;
         }
-        //Split the block ASSIGN BLOCK TO ALLOCATE ON THE LEFT  
+        //Split the block and assign block to allocate on the left side  
         int oldCapac = smallest->capacity;
         int oldSize = smallest->size;
 
@@ -141,7 +141,7 @@ Block * free_list_search(size_t size) {
     return NULL;
 }
 
-//A Function to insert a given block at the head of a FreeList
+/* A Function to insert a given block at the head of a FreeList */
 void free_list_insert(Block *block) {	
     /* Append to head */
     Block *head;
@@ -152,7 +152,7 @@ void free_list_insert(Block *block) {
     block->prev = &FreeLists[binIndex];
 }
 
-//A Function to initialise the Bins of FreeListss
+/* A Function to initialise the Bins of FreeListss */
 void init() {
 	for(int i = 0; i < 9; i++) {
 		FreeLists[i].capacity = -1;
@@ -162,8 +162,8 @@ void init() {
 	}
 }
 
-//A Function that allocates the block of memory, returning a pointer, of a given size request
-void *myMalloc(size_t size) {
+/* A Function that allocates the block of memory, returning a pointer, of a given size request (size) */
+void *new_malloc(size_t size) {
 	if(!initInt)  {
 		initInt = 1;
 		init();
@@ -197,7 +197,7 @@ void *myMalloc(size_t size) {
     return block->data;
 }
 
-//A helper function to add a Block to the FreeList given a pointer
+/* A helper function to add a Block to the FreeList given a pointer */
 void addFree(void *ptr) {
 	 if (!ptr) {
         return;
@@ -205,11 +205,10 @@ void addFree(void *ptr) {
 
     Block *block = BLOCK_FROM_POINTER(ptr);
     free_list_insert(block);
-
 }
 
-//A  function to add a Block to the FreeList given a pointer and coalesce the adjacent Free Blocks
-void myFree(void *ptr) {
+/* A  function to add a Block to the FreeList given a pointer and coalesce the adjacent Free Blocks */
+void new_free(void *ptr) {
 	 if (!ptr) {
         return;
     }
@@ -233,16 +232,14 @@ void myFree(void *ptr) {
     coalesce();
 }
 
-//A function that coalsces adjacent Free Blocks in memory
+/* A function that coalsces adjacent Free Blocks in memory*/
 void coalesce() {    
-	//Fix coalescing
     for (Block *curr = FreeLists[binIndex].next; curr != &FreeLists[binIndex]; curr = curr->next) {
     	Block *next; 
     	Block *prev; 	
     	next = curr->next;
     	prev = curr->prev;
 
-    	//printf("\n%d\n", ((next-curr)*32));
     	if(((next-curr)*32) == curr->capacity) {     		
         	curr->next = next->next;
         	curr->size = curr->size + next->size + sizeof(Block);
@@ -252,7 +249,7 @@ void coalesce() {
     }
 }
 
-
+/* The main function to Test my Malloc/Free implementation */
 int main() {
 	char word[10];
 	char newWord[10] = "Filler";
@@ -265,7 +262,7 @@ int main() {
 			printf("Enter amount of memory to allocate: ");
 			scanf("%s", word);			   
       		int x = atoi(word);
-      		int *q = (int*)myMalloc(x);
+      		int *q = (int*)new_malloc(x);
       		*q = 100;
       		printf(" %p\n", q);
 		}
@@ -274,11 +271,9 @@ int main() {
 			int *ptr;
 			scanf("%p", &ptr);
       		
-      		myFree(ptr);
+      		new_free(ptr);
     	}
         printf("\n");
 		printFreeList();
 	}
 }
-
-
