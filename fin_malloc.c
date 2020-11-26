@@ -108,7 +108,7 @@ Block * free_list_search(size_t size) {
     for (Block *curr = FreeLists[binIndex].next; curr != &FreeLists[binIndex]; curr = curr->next) {                
         if (curr->capacity - sizeof(Block) >= size) {   
             found = 1;
-            if(curr->capacity < smallest->capacity) {
+            if(curr->size < smallest->size) {            	
                 smallest = curr;
             }            
         }
@@ -266,7 +266,7 @@ int main() {
       		*q = 100;
       		printf(" %p\n", q);
 		}
-		else{
+		else {
 			printf("Enter address to free: ");
 			int *ptr;
 			scanf("%p", &ptr);
@@ -277,3 +277,5 @@ int main() {
 		printFreeList();
 	}
 }
+
+
